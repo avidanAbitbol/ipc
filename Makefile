@@ -1,6 +1,6 @@
 CC = gcc
 WALL = -Wall
-CFLAGS = -g -O2 $(WALL)
+CFLAGS = $(WALL)
 
 all: chat
 
