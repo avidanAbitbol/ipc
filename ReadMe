@@ -26,6 +26,8 @@ make a server and client program that can send and recieve messages via type in 
     ./chat -s <port> -p -q
     ./chat -c <ip> <port> -p <type> <param>
     or
+    	(when using sudo make sure to try again after you insert the password!)
+
     sudo./chat -c <ip> <port> -p <type> <param> (for uds)
     to test it on your own computer, open two terminals and run the server on one and the client on the other
     choose a port number between 1024 and 65535
