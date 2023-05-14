@@ -1,6 +1,20 @@
-gcc -o chat chat.c//compile
-./chat -s 1234//server
-./chat -c 127.0.0.1 1234//client
+gcc -o chat chat.c//can compile like that
+compile the code and run the program:
+    cmd->make all
+
+part A:
+make a server and client program that can send and recieve messages from each other
+    ./chat -s <port>
+    ./chat -c <ip> <port>
+
+part B:
+make a server and client program that can send and recieve messages via type in the terminal
+    ./chat -s <port> -p
+    or
+    ./chat -s <port> -p -q
+    ./chat -c <ip> <port> -p <type> <param>
+    or
+    sudo./chat -c <ip> <port> -p <type> <param> (for uds)
 
 
 
