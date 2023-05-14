@@ -1,4 +1,3 @@
-gcc -o chat chat.c//can compile like that
 compile the code and run the program:
     cmd->make all
 
@@ -6,7 +5,9 @@ part A:
 make a server and client program that can send and recieve messages from each other
     ./chat -s <port>
     ./chat -c <ip> <port>
-
+    to test it on your own computer, open two terminals and run the server on one and the client on the other
+    choose a port number between 1024 and 65535
+    and ip address 127.0.0.1
 part B:
 make a server and client program that can send and recieve messages via type in the terminal
     ./chat -s <port> -p
@@ -15,6 +16,23 @@ make a server and client program that can send and recieve messages via type in 
     ./chat -c <ip> <port> -p <type> <param>
     or
     sudo./chat -c <ip> <port> -p <type> <param> (for uds)
+    to test it on your own computer, open two terminals and run the server on one and the client on the other
+    choose a port number between 1024 and 65535
+    and ip address 127.0.0.1,but when using ipv6 you need to use the ipv6 address of your computer
+    that is ::1 as the ip address
+    type is the type of message you want to send:
+    ipv4,ipv6,uds,mmap,pipe
+    param is the parameter for the message you want to send:
+    tcp,udp,dgram,stream,filename
 
-
+    the combination are:
+    ipv4 tcp
+    ipv4 udp
+    ipv6 tcp
+    ipv6 udp
+    uds stream
+    uds dgram
+    mmap filename
+    pipe filename
+    remember: if you want to use ipv6, you need to use the ipv6 address of your computer
 
