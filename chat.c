@@ -1,6 +1,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <poll.h>
+#include <sys/un.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -741,7 +742,7 @@ long pipe_server() {
 }
 
 
-void quiet_print(int performence, int quiet, long res, char *type, char *param) {
+void quietMode(int performence, int quiet, long res, char *type, char *param) {
     if (performence == 0) {
         return;
     }
@@ -757,7 +758,7 @@ void quiet_print(int performence, int quiet, long res, char *type, char *param) 
     }
 }
 
-int server_mode_part_B(int performence, int quiet, int port) {
+int server_preformance(int performence, int quiet, int port) {
     int server_sock, client_sock;
     struct sockaddr_in server_addr, client_addr;
     socklen_t sin_size;
@@ -810,14 +811,14 @@ int server_mode_part_B(int performence, int quiet, int port) {
             // Start a TCP server
             long res = tcp_ipv4_server(port);
             //printf("Starting IPv4 TCP server...\n");
-            quiet_print(performence, quiet, res, "ipv4", "_tcp");
+            quietMode(performence, quiet, res, "ipv4", "_tcp");
             //server_general_sock("ipv4", "tcp");
         } else if (strncmp(buffer + 4, "udp", 3) == 0) {
             //printf("Starting IPv4 UDP server...\n");
             //server_general_sock("ipv4", "udp");
             // Start a UDP server
             long res = udp_ipv4_server(port);
-            quiet_print(performence, quiet, res, "ipv4", "_udp");
+            quietMode(performence, quiet, res, "ipv4", "_udp");
         }
     } else if (strncmp(buffer, "ipv6", 4) == 0) {
         // Start an IPv6 server
@@ -827,11 +828,11 @@ int server_mode_part_B(int performence, int quiet, int port) {
             //printf("Starting IPv6 TCP server...\n");
             long res = tcp_ipv6_server(port);
 
-            quiet_print(performence, quiet, res, "ipv6", "_tcp");
+            quietMode(performence, quiet, res, "ipv6", "_tcp");
         } else if (strncmp(buffer + 4, "udp", 3) == 0) {
             //printf("Starting IPv6 UDP server...\n");
             long res = udp_ipv6_server();
-            quiet_print(performence, quiet, res, "ipv6", "_udp");
+            quietMode(performence, quiet, res, "ipv6", "_udp");
         } else {
             printf("Invalid parameter\n");
             return -1;
@@ -840,19 +841,19 @@ int server_mode_part_B(int performence, int quiet, int port) {
 
         // Start a UDS server
 
-        if (strncmp(buffer + 3, "tcp", 3) == 0) {
+        if (strncmp(buffer + 3, "dgram", 3) == 0) {
             char *uds_address = "/home/mysocket";
             unlink(uds_address);
             long res = tcp_uds_server(uds_address);
-            quiet_print(performence, quiet, res, "uds", "_tcp");
+            quietMode(performence, quiet, res, "uds", "_dgram");
             unlink(uds_address);
-        } else if (strncmp(buffer + 3, "udp", 3) == 0) {
+        } else if (strncmp(buffer + 3, "stream", 3) == 0) {
             //printf("Starting UDS UDP server...\n");
             char *uds_address = "/home/mysocket";
             unlink(uds_address);
             long res = udp_uds_server(uds_address);
             unlink(uds_address);
-            quiet_print(performence, quiet, res, "uds", "_udp");
+            quietMode(performence, quiet, res, "uds", "_stream");
         } else {
             printf("Invalid parameter\n");
             return -1;
@@ -862,11 +863,11 @@ int server_mode_part_B(int performence, int quiet, int port) {
         char *data = malloc(DATA_SIZE);
         generate_data(data, DATA_SIZE);
         long res = mmap_server("my_fifo.txt");
-        quiet_print(performence, quiet, res, "mmap", "");
+        quietMode(performence, quiet, res, "mmap", "");
     } else if (strncmp(buffer, "pipe", 4) == 0) {
 
         long res = pipe_server();
-        quiet_print(performence, quiet, res, "pipe", "");
+        quietMode(performence, quiet, res, "pipe", "");
     } else {
         printf("Invalid input, please try again.\n");
         close(client_sock);
@@ -874,7 +875,7 @@ int server_mode_part_B(int performence, int quiet, int port) {
     close(server_sock);
     return 0;
 }
-int entry_mmap_client(char *filename){
+int mmap_client(char *filename){
     int fd = open(filename, O_RDONLY, 0666);
     if (fd < 0) {
         perror("Error opening file");
@@ -897,7 +898,7 @@ int entry_mmap_client(char *filename){
     close(fd);
     return 0;
 }
-int entry_pipe_client() {
+int pipe_client() {
     int fd;
     char *data = malloc(DATA_SIZE);
     generate_data(data, DATA_SIZE);
@@ -929,7 +930,7 @@ int entry_pipe_client() {
     free(data);
     return 0;
 }
-int client_uds_tcp(char* data){
+int client_udsStream(char* data){
     int sock = 0/*, valread*/;
     double sum;
     const char* socket_path = "/home/mysocket";
@@ -1170,7 +1171,7 @@ int ipv4_tcp_server(int port) {
     printf("Elapsed time: %ld microseconds\n", elapsed_time);
     return 0;
 }
-int entry_ipv6_tcp(char *ip, int port){
+int client_ipv6_tcp(char *ip, int port){
     int sockfd = socket(AF_INET6, SOCK_STREAM, 0);
     if (sockfd < 0) {
         perror("Error creating socket");
@@ -1293,7 +1294,7 @@ int entry_ipv6_tcp(char *ip, int port){
     close(sockfd);
     return 0;
 };
-int client_uds_udp(char* data){
+int client_udsDgram(char* data){
     int sock = 0;
     double sum;
     struct sockaddr_un serv_addr;
@@ -1446,7 +1447,7 @@ int uds_udp_server(char* socket_path) {
     return 0;
 
 }
-int entry_ipv4_udp(char *ip, int port) {
+int client_ipv4_udp(char *ip, int port) {
     int sockfd;
     struct sockaddr_in serv_addr;
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -1565,7 +1566,7 @@ int ipv4_udp_server(int port) {
 }
 
 
-int entry_v6_udp(char *ip, int port) {
+int client_ipv6_udp(char *ip, int port) {
     int sockfd;
     struct sockaddr_in6 serv_addr;
     if ((sockfd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
@@ -1733,7 +1734,7 @@ int main(int argc, char *argv[]) {
             }
             else if (argc == 4){
                 int port = atoi(argv[2]);
-                int srvr_end_point = server_mode_part_B(1,0, port);
+                int srvr_end_point = server_preformance(1,0, port);
             }
 
         } else {
@@ -1745,7 +1746,7 @@ int main(int argc, char *argv[]) {
             int port = atoi(argv[2]);
             char *performance = argv[3]; // should be a -p flag
             char *quiet = argv[4]; // should be a -q flag
-            int srvr_end_point = server_mode_part_B(1,1, port);
+            int srvr_end_point = server_preformance(1,1, port);
         } else {
             printf("Usage:\nClient side: stnc -c IP PORT\nServer side: stnc -s PORT\n");
             return -1;
@@ -1796,34 +1797,34 @@ int main(int argc, char *argv[]) {
                         //connect to mainSe
                         return 0;
                     } else if (strcmp(argv[6], "udp") == 0) {
-                        entry_ipv4_udp(ip, port);
+                        client_ipv4_udp(ip, port);
                         return 0;
                     }
                 } else if (strcmp(argv[5], "ipv6") == 0) {
                     if (strcmp(argv[6], "tcp") == 0) {
 
-                        entry_ipv6_tcp(ip, port);
+                        client_ipv6_tcp(ip, port);
                         //connect to mainSe
                         return 0;
                     } else if (strcmp(argv[6], "udp") == 0) {
-                        entry_v6_udp(ip, port);
+                        client_ipv6_udp(ip, port);
                         return 0;
                     }
                 } else if (strcmp(argv[5], "uds") == 0) {
 
-                    if (strcmp(argv[6], "tcp") == 0) {
-                        client_uds_tcp(data);
+                    if (strcmp(argv[6], "dgram") == 0) {
+                        client_udsStream(data);
                         return 0;
-                    } else if (strcmp(argv[6], "udp") == 0) {
-                        client_uds_udp(data);
+                    } else if (strcmp(argv[6], "stream") == 0) {
+                        client_udsDgram(data);
                         return 0;
                     }
                 } else if (argv[5] == "mmap") {
-                    entry_mmap_client("my_fifo.txt");
+                    mmap_client("my_fifo.txt");
 
                 } else if (strcmp(argv[5], "pipe") == 0) {
 
-                    entry_pipe_client();
+                    pipe_client();
                 }
             }
         }
